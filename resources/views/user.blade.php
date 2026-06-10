@@ -1,45 +1,71 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Data User</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .btn { padding: 5px 10px; margin: 2px; text-decoration: none; color: white; border-radius: 3px; }
-        .btn-success { background-color: #28a745; }
-        .btn-warning { background-color: #ffc107; color: black; }
-        .btn-danger { background-color: #dc3545; }
-    </style>
-</head>
-<body>
-    <h1>Data User</h1>
-    <a href="{{ url('/user/create') }}" class="btn btn-success">Tambah User</a>
-    <br><br>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Level</th>
-                <th>Username</th>
-                <th>Nama</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($data as $d)
-            <tr>
-                <td>{{ $d->user_id }}</td>
-                <td>{{ $d->level->level_nama }}</td>
-                <td>{{ $d->username }}</td>
-                <td>{{ $d->nama }}</td>
-                <td>
-                    <a href="{{ url('/user/edit/' . $d->user_id) }}" class="btn btn-warning">Edit</a>
-                    <a href="{{ url('/user/delete/' . $d->user_id) }}" class="btn btn-danger" onclick="return confirm('Yakin hapus?')">Hapus</a>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</body>
-</html>
+@extends('layouts.template')
+
+@section('title', 'Data User')
+@section('content')
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ $page->title }}</h3>
+        <div class="card-tools">
+            <a href="{{ url('/user/create') }}" class="btn btn-sm btn-primary mt-1">Tambah User</a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+        
+        <table class="table table-bordered table-striped table-hover" id="table-user">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Nama</th>
+                    <th>Level Pengguna</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade animate shake" tabindex="-1" data-backdrop="static" data-keyboard="false" data-width="75%"></div>
+
+@endsection
+
+@push('css')
+@endpush
+
+@push('js')
+<script>
+function modalAction(url = '') {
+    $('#myModal').load(url, function() {
+        $('#myModal').modal('show');
+    });
+}
+
+$(document).ready(function() {
+    $('#table-user').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ url('user/list') }}",
+            type: "POST",
+            data: function(d) {
+                d._token = "{{ csrf_token() }}";
+            }
+        },
+        columns: [
+            { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
+            { data: "username", orderable: true, searchable: true },
+            { data: "nama", orderable: true, searchable: true },
+            { data: "level.level_nama", orderable: false, searchable: false },
+            { data: "aksi", orderable: false, searchable: false }
+        ]
+    });
+});
+</script>
+@endpush

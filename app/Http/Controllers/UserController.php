@@ -6,14 +6,47 @@ use App\Models\UserModel;
 use App\Models\LevelModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
-    // READ - Menampilkan semua data
+    // READ - Menampilkan halaman user dengan DataTables
     public function index()
     {
-        $users = UserModel::with('level')->get();
-        return view('user', ['data' => $users]);
+        $breadcrumb = (object) [
+            'title' => 'Daftar User',
+            'list' => ['Home', 'User']
+        ];
+        $page = (object) [
+            'title' => 'Daftar user yang terdaftar dalam sistem'
+        ];
+        $activeMenu = 'user';
+
+        return view('user', [
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu
+        ]);
+    }
+
+    // Ambil data user dalam bentuk json untuk DataTables
+    public function list(Request $request)
+    {
+        $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
+            ->with('level');
+
+        return DataTables::of($users)
+            ->addIndexColumn() // menambahkan kolom index / no urut
+            ->addColumn('aksi', function ($user) {
+                $btn = '<a href="'.url('/user/' . $user->user_id).'" class="btn btn-info btn-sm">Detail</a> ';
+                $btn .= '<a href="'.url('/user/edit/' . $user->user_id).'" class="btn btn-warning btn-sm">Edit</a> ';
+                $btn .= '<form class="d-inline-block" method="POST" action="'.url('/user/'.$user->user_id).'">'
+                    . csrf_field() . method_field('DELETE') .
+                    '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';
+                return $btn;
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
     // CREATE - Menampilkan form tambah
@@ -33,6 +66,13 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
         return redirect('/user');
+    }
+
+    // SHOW - Menampilkan detail user
+    public function show($id)
+    {
+        $user = UserModel::with('level')->find($id);
+        return view('user_show', ['user' => $user]);
     }
 
     // UPDATE - Menampilkan form edit
@@ -95,7 +135,7 @@ class UserController extends Controller
     public function firstOrCreateUser()
     {
         $user = UserModel::firstOrCreate(
-            ['username' => 'kasir2'], // kondisi pencarian
+            ['username' => 'kasir2'],
             [
                 'level_id' => 3,
                 'nama' => 'Kasir Dua',
@@ -116,7 +156,6 @@ class UserController extends Controller
                 'password' => Hash::make('12345')
             ]
         );
-        // $user->save(); // Perlu dipanggil jika ingin menyimpan
         return view('user_find', ['user' => $user]);
     }
 
@@ -126,12 +165,12 @@ class UserController extends Controller
         $user = UserModel::find(1);
         
         $user->nama = 'Administrator Update';
-        $isDirty = $user->isDirty(); // true
-        $isDirtyNama = $user->isDirty('nama'); // true
-        $isClean = $user->isClean(); // false
+        $isDirty = $user->isDirty();
+        $isDirtyNama = $user->isDirty('nama');
+        $isClean = $user->isClean();
         
         $user->save();
-        $wasChanged = $user->wasChanged(); // true
+        $wasChanged = $user->wasChanged();
         
         return response()->json([
             'isDirty' => $isDirty,
