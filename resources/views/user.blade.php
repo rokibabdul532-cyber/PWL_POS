@@ -7,6 +7,7 @@
     <div class="card-header">
         <h3 class="card-title">{{ $page->title }}</h3>
         <div class="card-tools">
+            <button onclick="modalAction('{{ url('/user/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah Ajax</button>
             <a href="{{ url('/user/create') }}" class="btn btn-sm btn-primary mt-1">Tambah User</a>
         </div>
     </div>

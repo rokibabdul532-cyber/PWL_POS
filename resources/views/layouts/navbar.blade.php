@@ -6,11 +6,18 @@
     </ul>
     
     <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url('/logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="fas fa-sign-out-alt"></i> Logout
+        <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#">
+                <i class="fas fa-user"></i> {{ Auth::user()->nama ?? 'User' }}
             </a>
-            <form id="logout-form" action="#" method="POST" style="display: none;">@csrf</form>
+            <div class="dropdown-menu dropdown-menu-right">
+                <form action="{{ url('/logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
         </li>
     </ul>
 </nav>
