@@ -11,7 +11,6 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
-    // Menampilkan halaman user dengan DataTables
     public function index()
     {
         $breadcrumb = (object) [
@@ -30,7 +29,6 @@ class UserController extends Controller
         ]);
     }
 
-    // Ambil data user dalam bentuk json untuk DataTables
     public function list(Request $request)
     {
         $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
@@ -48,14 +46,12 @@ class UserController extends Controller
             ->make(true);
     }
 
-    // Menampilkan halaman form tambah user (Ajax)
     public function create_ajax()
     {
         $levels = LevelModel::select('level_id', 'level_nama')->get();
         return view('user.create_ajax', ['levels' => $levels]);
     }
 
-    // Menyimpan data user baru (Ajax)
     public function store_ajax(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -91,7 +87,6 @@ class UserController extends Controller
         return redirect('/');
     }
 
-    // Menampilkan halaman form edit user (Ajax)
     public function edit_ajax($id)
     {
         $user = UserModel::find($id);
@@ -99,7 +94,6 @@ class UserController extends Controller
         return view('user.edit_ajax', ['user' => $user, 'levels' => $levels]);
     }
 
-    // Menyimpan perubahan data user (Ajax)
     public function update_ajax(Request $request, $id)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -144,14 +138,12 @@ class UserController extends Controller
         return redirect('/');
     }
 
-    // Menampilkan halaman konfirmasi hapus (Ajax)
     public function confirm_ajax($id)
     {
         $user = UserModel::find($id);
         return view('user.confirm_ajax', ['user' => $user]);
     }
 
-    // Menghapus data user (Ajax)
     public function delete_ajax(Request $request, $id)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -172,16 +164,21 @@ class UserController extends Controller
         return redirect('/');
     }
 
-    // ========== METHOD LAMA (CRUD Biasa) ==========
+    // ========== SHOW AJAX - Detail User ==========
+    public function show_ajax($id)
+    {
+        $user = UserModel::with('level')->find($id);
+        return view('user.show_ajax', ['user' => $user]);
+    }
 
-    // CREATE - Menampilkan form tambah (biasa)
+    // ========== METHOD LAMA (CRUD Biasa) ==========
     public function create()
     {
         $levels = LevelModel::all();
-        return view('user_create', ['levels' => $levels]);
+        $activeMenu = 'user';
+        return view('user_create', ['levels' => $levels, 'activeMenu' => $activeMenu]);
     }
 
-    // CREATE - Menyimpan data baru (biasa)
     public function store(Request $request)
     {
         UserModel::create([
@@ -193,14 +190,12 @@ class UserController extends Controller
         return redirect('/user');
     }
 
-    // SHOW - Menampilkan detail user (biasa)
     public function show($id)
     {
         $user = UserModel::with('level')->find($id);
         return view('user_show', ['user' => $user]);
     }
 
-    // UPDATE - Menampilkan form edit (biasa)
     public function edit($id)
     {
         $user = UserModel::find($id);
@@ -208,7 +203,6 @@ class UserController extends Controller
         return view('user_edit', ['data' => $user, 'levels' => $levels]);
     }
 
-    // UPDATE - Menyimpan perubahan (biasa)
     public function update(Request $request, $id)
     {
         $user = UserModel::find($id);
@@ -222,15 +216,13 @@ class UserController extends Controller
         return redirect('/user');
     }
 
-    // DELETE - Menghapus data (biasa)
     public function delete($id)
     {
         UserModel::find($id)->delete();
         return redirect('/user');
     }
 
-    // ========== JOBSHEET 4 - METHOD BARU ==========
-
+    // ========== JOBSHEET 4 ==========
     public function find($id)
     {
         $user = UserModel::find($id);
