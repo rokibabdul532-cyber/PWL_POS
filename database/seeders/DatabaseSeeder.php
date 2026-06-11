@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             KategoriSeeder::class,
             SupplierSeeder::class,
             UserSeeder::class,
+            BarangSeeder::class,
         ]);
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BarangController;
 use App\Http\Controllers\AuthController;
 
 // ==================== ROUTE LOGIN & LOGOUT ====================
@@ -44,6 +45,23 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/first-or-create', [UserController::class, 'firstOrCreateUser']); // firstOrCreate
         Route::get('/first-or-new', [UserController::class, 'firstOrNewUser']);  // firstOrNew
         Route::get('/check-dirty', [UserController::class, 'checkDirty']);       // Mengecek perubahan atribut
+    });
+
+    // ==================== ROUTE UNTUK BARANG (JOBSHEET 8 - IMPORT/EXPORT) ====================
+    // Semua role bisa akses barang
+    Route::prefix('barang')->group(function () {
+        Route::get('/', [BarangController::class, 'index']);                     // Menampilkan halaman awal barang
+        Route::post('/list', [BarangController::class, 'list']);                // Menampilkan data barang dalam bentuk json untuk DataTables
+        Route::get('/create_ajax', [BarangController::class, 'create_ajax']);   // Menampilkan form tambah barang (Ajax)
+        Route::post('/ajax', [BarangController::class, 'store_ajax']);          // Menyimpan data barang baru (Ajax)
+        Route::get('/{id}/edit_ajax', [BarangController::class, 'edit_ajax']);  // Menampilkan form edit barang (Ajax)
+        Route::put('/{id}/update_ajax', [BarangController::class, 'update_ajax']); // Menyimpan perubahan data barang (Ajax)
+        Route::get('/{id}/delete_ajax', [BarangController::class, 'confirm_ajax']); // Menampilkan konfirmasi hapus (Ajax)
+        Route::delete('/{id}/delete_ajax', [BarangController::class, 'delete_ajax']); // Menghapus data barang (Ajax)
+        Route::get('/import', [BarangController::class, 'import']);             // Menampilkan form import barang (Ajax)
+        Route::post('/import_ajax', [BarangController::class, 'import_ajax']);  // Menyimpan data import barang (Ajax)
+        Route::get('/export_excel', [BarangController::class, 'export_excel']); // Export data barang ke Excel
+        Route::get('/export_pdf', [BarangController::class, 'export_pdf']);     // Export data barang ke PDF
     });
 
     // ==================== ROUTE YANG HANYA BISA DIAKSES ADMIN ====================
